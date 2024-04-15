@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Calculator</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous"/>
+    <style>
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 3rem;
+            border: 2px solid #c5c4c4;
+            
+        }
+
+        .error-icon {
+            color: red;
+            margin-left: 5px;
+            display: none;
+
+          
+        }
+    </style>
+</head>
+<body>
+<div class="d-flex align-items-center justify-content-center" style="height: 100vh">
+    <div class="container">
+        <div class="form-container">
+            <form id="taxForm">
+                <div class="mb-3">
+                    <label for="grossAnnualIncome" class="form-label">Enter gross annual income</label>
+                    <div class="d-flex align-items-center">
+                        <input class="form-control" id="grossAnnualIncome" name="grossAnnualIncome"
+                               placeholder="Enter gross annual income"/>
+                        <span class="error-icon" id="grossAnnualIncomeError">!</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="extraIncome" class="form-label">Enter extra income</label>
+                    <div class="d-flex align-items-center">
+                        <input class="form-control" id="extraIncome" name="extraIncome"
+                               placeholder="Enter extra income from other sources"/>
+                        <span class="error-icon" id="extraIncomeError">!</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="ageGroup" class="form-label">Enter age group</label>
+                    <div class="d-flex align-items-center">
+                        <select class="form-control" id="ageGroup" name="ageGroup">
+                            <option value="<40">&lt;40</option>
+                            <option value=">=40&<60">&ge;40 &lt;60</option>
+                            <option value=">=60">&ge;60</option>
+                        </select>
+                        <span class="error-icon" id="ageGroupError">!</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="totalApplicableDeductions" class="form-label">Enter total applicable deductions</label>
+                    <div class="d-flex align-items-center">
+                        <input class="form-control" id="totalApplicableDeductions" name="totalApplicableDeductions"
+                               placeholder="Add total applicable deductions"/>
+                        <span class="error-icon" id="totalApplicableDeductionsError">!</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn col btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Function to calculate tax based on income and age
+    function calculateTax(event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Get input values
+        var grossIncome = parseFloat(document.getElementById('grossAnnualIncome').value);
+        var extraIncome = parseFloat(document.getElementById('extraIncome').value);
+        var age = document.getElementById('ageGroup').value;
+        var deductions = parseFloat(document.getElementById('totalApplicableDeductions').value);
+
+        // Calculate total income
+        var totalIncome = grossIncome + extraIncome - deductions;
+
+        // Initialize tax rate based on age
+        var taxRate;
+        if (age === '<40') {
+            taxRate = 0.3;
+        } else if (age === '>=40&<60') {
+            taxRate = 0.4;
+        } else {
+            taxRate = 0.1;
+        }
+
+        // Calculate tax amount
+        var taxAmount = 0;
+        if (totalIncome > 800000) {
+            taxAmount = taxRate * (totalIncome - 800000);
+        }
+
+        // Show the modal with calculated values
+        $('#taxModal').modal('show');
+        document.getElementById('taxAmount').innerText = taxAmount.toFixed(2) + ' Lakhs';
+    }
+
+    // Function to validate form fields and show error icons if necessary
+    function validateForm() {
+        var isValid = true;
+
+        // Validate each input field
+        ['grossAnnualIncome', 'extraIncome', 'ageGroup', 'totalApplicableDeductions'].forEach(function (field) {
+            var value = document.getElementById(field).value;
+            if (value === '' || isNaN(value)) {
+                isValid = false;
+                document.getElementById(field + 'Error').style.display = 'inline';
+            } else {
+                document.getElementById(field + 'Error').style.display = 'none';
+            }
+        });
+
+        // If form is valid, calculate tax
+        if (isValid) {
+            calculateTax();
+        }
+    }
+
+    // Attach form submission handler
+    document.getElementById('taxForm').addEventListener('submit', calculateTax);
+</script>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#taxModal">
+  Launch Tax Modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="taxModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center"> <!-- Center content -->
+          <div class="modal-header">
+              <h3 class="modal-title text-center w-100" id="exampleModalLabel">Your overall income will be</h3> <!-- Center header text -->
+              <button type="button" class="btn-close btn-close-purple" data-bs-dismiss="modal" aria-label="Close"></button> <!-- Change close button color -->
+          </div> 
+          <div class="modal-body">
+              <h5><span id="taxAmount"></span></h5>
+              <p>after tax deductions</p>
+          </div>
+          <div class="modal-footer justify-content-center"> <!-- Center footer buttons -->
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+</body>
+</html>
